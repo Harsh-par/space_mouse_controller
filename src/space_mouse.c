@@ -61,7 +61,7 @@ void space_mouse_print_direction(tlv493d_t *tlv493d)
 
 void space_mouse_print_axis(tlv493d_t *tlv493d)
 {
-    printf("AXIS %d %d %d\n", abs(tlv493d->axis_x), abs(tlv493d->axis_y), abs(tlv493d->axis_z));
+    printf("AXIS %d %d %d\n", abs((int)tlv493d->axis_x), abs((int)tlv493d->axis_y), abs((int)tlv493d->axis_z));
 }
 
 void space_mouse_print_deltas(tlv493d_t *tlv493d)
