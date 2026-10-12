@@ -3,7 +3,7 @@
 #include <math.h>
 
 #include "tlv493d.h"
-
+#include "space_mouse.h"
 #include "configuration.h"
 
 #include "esp_log.h"
@@ -37,7 +37,7 @@ void app_main(void)
         if(!calibration_mode)
         {
             tlv493d_read(&tlv493d);
-            tlv493d_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
+            space_mouse_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
 
             float abs_x = fabsf(tlv493d.axis_x);
             float abs_y = fabsf(tlv493d.axis_y);
@@ -75,7 +75,7 @@ void app_main(void)
                 for(int i=0; i<50; i++)
                 {
                     tlv493d_read(&tlv493d);
-                    tlv493d_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
+                    space_mouse_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
                     printf("delta %d %d %d\n", tlv493d.m_delta_x, tlv493d.m_delta_y, tlv493d.m_delta_z);
                 }
                 printf("reading done\n");
