@@ -30,10 +30,10 @@ typedef struct {
     float axis_z;
 } tlv493d_t;
 
-void tlv493d_i2c_init(tlv493d_t *tlv493d, uint8_t i2c_gpio_sda, uint8_t i2c_gpio_scl, uint8_t i2c_port, uint8_t i2c_address, bool configure_i2c);
-void tlv493d_device_init(tlv493d_t *tlv493d);
+void tlv493d_init_i2c(tlv493d_t *tlv493d, uint8_t i2c_gpio_sda, uint8_t i2c_gpio_scl, uint8_t i2c_port, uint8_t i2c_address, bool configure_i2c);
+void tlv493d_init_device(tlv493d_t *tlv493d);
 void tlv493d_read(tlv493d_t *tlv493d);
-void tlv493d_calibrate_center(tlv493d_t *tlv493d, uint32_t calibration_samples);
+void tlv493d_calibrate(tlv493d_t *tlv493d, uint32_t calibration_samples);
 void tlv493d_get_decoupled_movement(tlv493d_t *tlv493d, float deadzone);
 
 #endif

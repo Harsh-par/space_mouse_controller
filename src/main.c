@@ -26,9 +26,9 @@ void app_main(void)
 
     gpio_config(&gpio_configuration);
 
-    tlv493d_i2c_init(&tlv493d, I2C_MASTER_SDA_GPIO, I2C_MASTER_SCL_GPIO, I2C_MASTER_PORT, I2C_ADDRESS_TLV493D, true);
-    tlv493d_device_init(&tlv493d);
-    tlv493d_calibrate_center(&tlv493d, TLV493D_CALIBRATION_SAMPLES);
+    tlv493d_init_i2c(&tlv493d, I2C_MASTER_SDA_GPIO, I2C_MASTER_SCL_GPIO, I2C_MASTER_PORT, I2C_ADDRESS_TLV493D, true);
+    tlv493d_init_device(&tlv493d);
+    tlv493d_calibrate(&tlv493d, TLV493D_CALIBRATION_SAMPLES);
 
     static bool calibration_mode = false;
 

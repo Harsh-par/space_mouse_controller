@@ -41,7 +41,7 @@ static void tlv493d_read_raw(tlv493d_t *tlv493d)
     
     if(error != ESP_OK) 
     {
-        printf("I2C READ ERROR: %d\n", error); 
+        printf("tlv493d_read_raw : i2c read error : %d\n", error); 
         return;
     }
 
@@ -50,7 +50,7 @@ static void tlv493d_read_raw(tlv493d_t *tlv493d)
     tlv493d->m_z = tlv493d_unpack_12bit(buffer_data[2], buffer_data[5] & 0x0F);
 }
 
-void tlv493d_i2c_init(tlv493d_t *tlv493d, uint8_t i2c_gpio_sda, uint8_t i2c_gpio_scl, uint8_t i2c_port, uint8_t i2c_address, bool configure_i2c) 
+void tlv493d_init_i2c(tlv493d_t *tlv493d, uint8_t i2c_gpio_sda, uint8_t i2c_gpio_scl, uint8_t i2c_port, uint8_t i2c_address, bool configure_i2c) 
 {
     tlv493d->i2c_gpio_sda = i2c_gpio_sda;
     tlv493d->i2c_gpio_scl = i2c_gpio_scl;
@@ -73,7 +73,7 @@ void tlv493d_i2c_init(tlv493d_t *tlv493d, uint8_t i2c_gpio_sda, uint8_t i2c_gpio
     }
 }
 
-void tlv493d_device_init(tlv493d_t *tlv493d) 
+void tlv493d_init_device(tlv493d_t *tlv493d) 
 {    
     tlv493d->m_x = 0;
     tlv493d->m_y = 0;
@@ -108,7 +108,7 @@ void tlv493d_read(tlv493d_t *tlv493d)
     
     if(error != ESP_OK) 
     {
-        printf("I2C READ ERROR: %d\n", error); 
+        printf("tlv493d_read : i2c read error : %d\n", error); 
         return;
     }
 
@@ -121,7 +121,7 @@ void tlv493d_read(tlv493d_t *tlv493d)
     tlv493d->m_delta_z = tlv493d->m_z - tlv493d->m_base_z;
 }
 
-void tlv493d_calibrate_center(tlv493d_t *tlv493d, uint32_t calibration_samples)
+void tlv493d_calibrate(tlv493d_t *tlv493d, uint32_t calibration_samples)
 {
     int32_t sum_x = 0;
     int32_t sum_y = 0;
