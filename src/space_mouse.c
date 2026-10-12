@@ -31,3 +31,40 @@ void space_mouse_get_decoupled_movement(tlv493d_t *tlv493d, float deadzone)
     if(tlv493d->axis_y > -deadzone && tlv493d->axis_y < deadzone) tlv493d->axis_y = 0.0f;
     if(tlv493d->axis_z > -deadzone && tlv493d->axis_z < deadzone) tlv493d->axis_z = 0.0f;
 }
+
+void space_mouse_print_direction(tlv493d_t *tlv493d)
+{
+    float abs_x = fabsf(tlv493d->axis_x);
+    float abs_y = fabsf(tlv493d->axis_y);
+    float abs_z = fabsf(tlv493d->axis_z);
+
+    const char *direction = "IDLE";
+
+    if(abs_x > 0.0f || abs_y > 0.0f || abs_z > 0.0f) 
+    {
+        if(abs_x >= abs_y && abs_x >= abs_z) 
+        {
+            direction = (tlv493d->axis_x > 0.0f) ? "RIGHT" : "LEFT";
+        } 
+        else if(abs_y >= abs_x && abs_y >= abs_z) 
+        {
+            direction = (tlv493d->axis_y > 0.0f) ? "FORWARD" : "BACKWARD";
+        } 
+        else if(abs_z > abs_x && abs_z > abs_y)
+        {
+            direction = (tlv493d->axis_z < 0.0f) ? "PUSH DOWN" : "PULL UP";
+        }
+    }     
+
+    printf("DIR %-10s\n", direction);
+}
+
+void space_mouse_print_axis(tlv493d_t *tlv493d)
+{
+    printf("AXIS %d %d %d\n", abs(tlv493d->axis_x), abs(tlv493d->axis_y), abs(tlv493d->axis_z));
+}
+
+void space_mouse_print_deltas(tlv493d_t *tlv493d)
+{
+    printf("DELTA %d %d %d\n", tlv493d->m_delta_x, tlv493d->m_delta_y, tlv493d->m_delta_z);
+}
