@@ -26,9 +26,7 @@ void app_main(void)
 
     gpio_config(&gpio_configuration);
 
-    tlv493d_init_i2c(&tlv493d, I2C_MASTER_SDA_GPIO, I2C_MASTER_SCL_GPIO, I2C_MASTER_PORT, I2C_ADDRESS_TLV493D, true);
-    tlv493d_init_device(&tlv493d);
-    tlv493d_calibrate(&tlv493d, TLV493D_CALIBRATION_SAMPLES);
+    space_mouse_initialize_magnetometer(&tlv493d);
 
     static bool calibration_mode = false;
 
@@ -36,7 +34,6 @@ void app_main(void)
     {
         if(!calibration_mode)
         {
-            tlv493d_read(&tlv493d);
             space_mouse_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
 
             float abs_x = fabsf(tlv493d.axis_x);

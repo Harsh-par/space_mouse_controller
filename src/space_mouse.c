@@ -6,8 +6,17 @@ static const float space_decoupling_matrix[3][3] = {
     {   -0.0406f,     0.1858f,     0.9977f}
 };
 
+void space_mouse_initialize_magnetometer(tlv493d_t *tlv493d)
+{
+    tlv493d_init_i2c(tlv493d, I2C_MASTER_SDA_GPIO, I2C_MASTER_SCL_GPIO, I2C_MASTER_PORT, I2C_ADDRESS_TLV493D, true);
+    tlv493d_init_device(tlv493d);
+    tlv493d_calibrate(tlv493d, TLV493D_CALIBRATION_SAMPLES);
+}
+
 void space_mouse_get_decoupled_movement(tlv493d_t *tlv493d, float deadzone)
 {
+    tlv493d_read(tlv493d);
+
     float raw_delta_x = (float)tlv493d->m_delta_x;
     float raw_delta_y = (float)tlv493d->m_delta_y;
     float raw_delta_z = (float)tlv493d->m_delta_z;
