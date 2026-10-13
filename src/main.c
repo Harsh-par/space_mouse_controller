@@ -12,6 +12,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "tinyusb.h"
+
 tlv493d_t tlv493d = {0};
 
 void app_main(void) 
