@@ -4,9 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define REPORT_ID_TRANSLATION 1
-#define REPORT_ID_ROTATION    2
-
 typedef struct space_mouse_data {
     int16_t x;
     int16_t y;

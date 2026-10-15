@@ -19,24 +19,23 @@ void usb_hid_init(void)
 
 void usb_hid_send_mouse(uint8_t buttons, int8_t x, int8_t y, int8_t scroll) 
 {
-    if(tud_hid_ready()) 
-    {
-        tud_hid_mouse_report(REPORT_ID_MOUSE, buttons, x, y, scroll, 0);
-    }
+    if(!tud_hid_n_ready(HID_INSTANCE_MOUSE_KEYBOARD)) return;
+    
+    tud_hid_n_mouse_report(HID_INSTANCE_MOUSE_KEYBOARD, REPORT_ID_MOUSE, buttons, x, y, scroll, 0);
 }
 
 void usb_hid_send_keyboard(uint8_t keycode, uint8_t modifier) 
 {
-    if(tud_hid_ready()) 
-    {
-        uint8_t keycodes[6] = {keycode, 0, 0, 0, 0, 0};
-        tud_hid_keyboard_report(REPORT_ID_KEYBOARD, modifier, keycodes);
-    }
+    if(!tud_hid_n_ready(HID_INSTANCE_MOUSE_KEYBOARD)) return;
+    
+    uint8_t keycodes[6] = {keycode, 0, 0, 0, 0, 0};
+
+    tud_hid_n_keyboard_report(HID_INSTANCE_MOUSE_KEYBOARD, REPORT_ID_KEYBOARD, modifier, keycodes);
 }
 
 void usb_hid_send_spacemouse(space_mouse_data_t *space_mouse_data)
 {
-    if(!tud_hid_ready()) return;
+    if(!tud_hid_n_ready(HID_INSTANCE_SPACEMOUSE)) return;
 
     static space_mouse_state_t space_mouse_state = SPACE_MOUSE_STATE_TRANSLATION;
 
@@ -50,7 +49,7 @@ void usb_hid_send_spacemouse(space_mouse_data_t *space_mouse_data)
                 space_mouse_data->z
             };
 
-            if(tud_hid_report(REPORT_ID_TRANSLATION, translation, sizeof(translation)))
+            if(tud_hid_n_report(HID_INSTANCE_SPACEMOUSE, REPORT_ID_TRANSLATION, translation, sizeof(translation)))
             {
                 space_mouse_state = SPACE_MOUSE_STATE_ROTATION;
             }
@@ -64,7 +63,7 @@ void usb_hid_send_spacemouse(space_mouse_data_t *space_mouse_data)
                 space_mouse_data->rz
             };
 
-            if(tud_hid_report(REPORT_ID_ROTATION, rotation, sizeof(rotation)))
+            if(tud_hid_n_report(HID_INSTANCE_SPACEMOUSE, REPORT_ID_ROTATION, rotation, sizeof(rotation)))
             {
                 space_mouse_state = SPACE_MOUSE_STATE_TRANSLATION;
             }

@@ -54,7 +54,7 @@ void app_main(void)
                 case 0: 
                 {
                     uint8_t mb = (!gpio_get_level(GPIO_MOUSE_SWITCH_RIGHT) << 1) | !gpio_get_level(GPIO_MOUSE_SWITCH_LEFT);
-                    //usb_hid_send_mouse(mb, 0, 0, 0);
+                    usb_hid_send_mouse(mb, 0, 0, 0);
                     break;
                 }
                 case 1: 
@@ -66,7 +66,7 @@ void app_main(void)
                         keycode = HID_KEY_C;
                     }
 
-                    //usb_hid_send_keyboard(keycode, 0);
+                    usb_hid_send_keyboard(keycode, 0);
                     break;
                 }
                 case 2: 
@@ -75,7 +75,7 @@ void app_main(void)
                     
                     space_mouse_data_t space_mouse_data = {0};
 
-                    if(!gpio_get_level(GPIO_MOUSE_SWITCH_LEFT))
+                    if(!gpio_get_level(GPIO_KEY_SWITCH_1))
                     {
                         space_mouse_state = (space_mouse_state + 1) % SPACE_MOUSE_STATE_TOTAL;
                     }
