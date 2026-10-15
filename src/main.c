@@ -36,10 +36,15 @@ void app_main(void)
     
     usb_hid_init();
     
-    //space_mouse_initialize_magnetometer(&tlv493d);
+    space_mouse_initialize_magnetometer(&tlv493d);
 
     while(true) 
     {
+        space_mouse_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
+        //space_mouse_print_direction(&tlv493d);
+        //space_mouse_print_axis(&tlv493d);
+        //space_mouse_print_deltas(&tlv493d);
+
         if(tud_hid_ready())
         {
             static uint8_t usb_hid_report_type = 0;
@@ -49,7 +54,7 @@ void app_main(void)
                 case 0: 
                 {
                     uint8_t mb = (!gpio_get_level(GPIO_MOUSE_SWITCH_RIGHT) << 1) | !gpio_get_level(GPIO_MOUSE_SWITCH_LEFT);
-                    usb_hid_send_mouse(mb, 0, 0, 0);
+                    //usb_hid_send_mouse(mb, 0, 0, 0);
                     break;
                 }
                 case 1: 
@@ -61,11 +66,41 @@ void app_main(void)
                         keycode = HID_KEY_C;
                     }
 
-                    usb_hid_send_keyboard(keycode, 0);
+                    //usb_hid_send_keyboard(keycode, 0);
                     break;
                 }
                 case 2: 
                 {
+                    static space_mouse_state_t space_mouse_state = SPACE_MOUSE_STATE_TRANSLATION;
+                    
+                    space_mouse_data_t space_mouse_data = {0};
+
+                    if(!gpio_get_level(GPIO_MOUSE_SWITCH_LEFT))
+                    {
+                        space_mouse_state = (space_mouse_state + 1) % SPACE_MOUSE_STATE_TOTAL;
+                    }
+
+                    switch(space_mouse_state)
+                    {
+                        case SPACE_MOUSE_STATE_TRANSLATION:
+                        {
+                            space_mouse_data.x = tlv493d.axis_x;
+                            space_mouse_data.y = tlv493d.axis_y;
+                            space_mouse_data.z = tlv493d.axis_z;
+                            break;
+                        }
+                        case SPACE_MOUSE_STATE_ROTATION:
+                        {
+                            space_mouse_data.rx = tlv493d.axis_x;
+                            space_mouse_data.ry = tlv493d.axis_y;
+                            space_mouse_data.rz = tlv493d.axis_z;
+                            break;
+                        }
+                        default: break;
+                    }
+
+                    usb_hid_send_spacemouse(&space_mouse_data);
+
                     break;
                 }
             }
@@ -73,11 +108,6 @@ void app_main(void)
             usb_hid_report_type = (usb_hid_report_type + 1) % 3;
 
         }
-
-        //space_mouse_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
-        //space_mouse_print_direction(&tlv493d);
-        //space_mouse_print_axis(&tlv493d);
-        //space_mouse_print_deltas(&tlv493d);
       
         vTaskDelay(pdMS_TO_TICKS(10)); 
     }   

@@ -3,7 +3,7 @@
 
 #include "tinyusb.h"
 
-#define TUSB_DESCRIPTOR_STRING_COUNT 4
+#define TUSB_DESCRIPTOR_STRING_COUNT 3
 
 typedef enum space_mouse_report_id {
     REPORT_ID_MOUSE      = 1,

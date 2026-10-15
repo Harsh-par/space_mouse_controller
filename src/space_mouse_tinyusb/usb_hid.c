@@ -34,19 +34,45 @@ void usb_hid_send_keyboard(uint8_t keycode, uint8_t modifier)
     }
 }
 
-void usb_hid_send_spacemouse(int16_t x, int16_t y, int16_t z, int16_t rx, int16_t ry, int16_t rz) 
+void usb_hid_send_spacemouse(space_mouse_data_t *space_mouse_data)
 {
-    if(tud_hid_ready()) 
-    {
-        space_mouse_data_t space_mouse_data = {
-            .x = x, .y = y, .z = z, 
-            .rx = rx, .ry = ry, .rz = rz
-        };
+    if(!tud_hid_ready()) return;
 
-        tud_hid_report(REPORT_ID_SPACEMOUSE, &space_mouse_data, sizeof(space_mouse_data));
+    static space_mouse_state_t space_mouse_state = SPACE_MOUSE_STATE_TRANSLATION;
+
+    switch(space_mouse_state)
+    {
+        case SPACE_MOUSE_STATE_TRANSLATION: 
+        {
+            int16_t translation[3] = {
+                space_mouse_data->x,
+                space_mouse_data->y,
+                space_mouse_data->z
+            };
+
+            if(tud_hid_report(REPORT_ID_TRANSLATION, translation, sizeof(translation)))
+            {
+                space_mouse_state = SPACE_MOUSE_STATE_ROTATION;
+            }
+            break;
+        }
+        case SPACE_MOUSE_STATE_ROTATION:
+        {
+            int16_t rotation[3] = {
+                space_mouse_data->rx,
+                space_mouse_data->ry,
+                space_mouse_data->rz
+            };
+
+            if(tud_hid_report(REPORT_ID_ROTATION, rotation, sizeof(rotation)))
+            {
+                space_mouse_state = SPACE_MOUSE_STATE_TRANSLATION;
+            }
+            break;
+        }
+        default: break;
     }
 }
-
 
 uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer, uint16_t reqlen) 
 {

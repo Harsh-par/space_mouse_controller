@@ -20,34 +20,77 @@
     0x81, 0x02,        /*   Input (Data, Variable, Absolute) */ \
     0xC0               /* End Collection */
 
+
+#define REPORT_ID_TRANSLATION 1
+#define REPORT_ID_ROTATION    2
+
+const uint8_t hid_report_descriptor[] = {
+    0x05, 0x01,        // Generic Desktop
+    0x09, 0x08,        // Multi-axis Controller
+    0xA1, 0x01,        // Application Collection
+
+    // Translation report
+    0xA1, 0x00,    // Physical Collection
+    0x85, 0x01,    // Report ID 1
+    0x16, 0xA2, 0xFE, // Logical Min -350
+    0x26, 0x5E, 0x01, // Logical Max 350
+    0x09, 0x30,    // X
+    0x09, 0x31,    // Y
+    0x09, 0x32,    // Z
+    0x75, 0x10,    // 16 bits
+    0x95, 0x03,    // Three axes
+    0x81, 0x06,    // Relative input
+    0xC0,
+
+    // Rotation report
+    0xA1, 0x00,    // Physical Collection
+    0x85, 0x02,    // Report ID 2
+    0x09, 0x33,    // Rx
+    0x09, 0x34,    // Ry
+    0x09, 0x35,    // Rz
+    0x75, 0x10,
+    0x95, 0x03,
+    0x81, 0x06,
+    0xC0,
+
+    0xC0
+};
+
+
+/*
 const uint8_t hid_report_descriptor[] = {
     TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(REPORT_ID_MOUSE)),
     TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(REPORT_ID_KEYBOARD)),
     TUD_HID_REPORT_DESC_SPACEMOUSE(REPORT_ID_SPACEMOUSE)
 };
+*/
 
 const tusb_desc_device_t tusb_descriptor_device = {
     .bLength            = sizeof(tusb_desc_device_t),
     .bDescriptorType    = TUSB_DESC_DEVICE,
     .bcdUSB             = 0x0200,
+
     .bDeviceClass       = 0x00,
     .bDeviceSubClass    = 0x00,
     .bDeviceProtocol    = 0x00,
+
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
-    .idVendor           = 0xCAFE, // 3Dconnexion VID
-    .idProduct          = 0xC62E, // SpaceMouse Compact PID
-    .bcdDevice          = 0x0438,
+
+    .idVendor           = 0x046D,
+    .idProduct          = 0xC62B,
+    .bcdDevice          = 0x0100,
+
     .iManufacturer      = 0x01,
     .iProduct           = 0x02,
-    .iSerialNumber      = 0x03,
+    .iSerialNumber      = 0x00,
+
     .bNumConfigurations = 0x01
 };
 
 const char* tusb_descriptor_string[] = {
     (const char[]){0x09, 0x04},
-    "spacemouse",              
-    "spacemouse",       
-    "123456"                   
+    "3Dconnexion",
+    "SpaceMouse Pro"
 };
 
 const uint8_t tusb_descriptor_configuration[] = { 
