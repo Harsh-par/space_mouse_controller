@@ -6,6 +6,8 @@
 #include "space_mouse.h"
 
 #include "space_mouse_input/rotary_encoder.h"
+#include "space_mouse_input/key_switch.h"
+#include "space_mouse_input/mouse_switch.h"
 
 #include "space_mouse_tinyusb/usb_descriptors.h"
 #include "space_mouse_tinyusb/usb_hid.h"
@@ -23,29 +25,13 @@
 
 tlv493d_t tlv493d = {0};
 rotary_encoder_t rotary_encoder = {0};
+key_switch_t key_switches = {0};
 
 void app_main(void) 
 {
     rotary_encoder_init_gpio(&rotary_encoder, GPIO_ROTARY_SWITCH, GPIO_ROTARY_ENCA, GPIO_ROTARY_ENCB);
-
-    gpio_config_t gpio_configuration_switch = {
-        .pin_bit_mask = (1ULL << GPIO_MOUSE_SWITCH_LEFT) | (1ULL << GPIO_MOUSE_SWITCH_RIGHT),
-        .mode         = GPIO_MODE_INPUT,
-        .pull_up_en   = GPIO_PULLUP_ENABLE,   
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type    = GPIO_INTR_DISABLE
-    };
-
-    gpio_config_t gpio_configuration_key = {
-        .pin_bit_mask = (1ULL << GPIO_KEY_SWITCH_0) | (1ULL << GPIO_KEY_SWITCH_1) | (1ULL << GPIO_KEY_SWITCH_2),
-        .mode         = GPIO_MODE_INPUT,
-        .pull_up_en   = GPIO_PULLUP_ENABLE,   
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type    = GPIO_INTR_DISABLE
-    };
-
-    gpio_config(&gpio_configuration_switch);
-    gpio_config(&gpio_configuration_key);
+    key_switch_init_gpio(&key_switches, GPIO_KEY_SWITCH_0, GPIO_KEY_SWITCH_1, GPIO_KEY_SWITCH_2);
+    mouse_switch_init_gpio(GPIO_MOUSE_SWITCH_LEFT, GPIO_MOUSE_SWITCH_RIGHT);
     
     usb_hid_init();
     
@@ -73,24 +59,8 @@ void app_main(void)
                 }
                 case 1: 
                 {
-                    uint8_t keycode = 0;
-
-                    if(!gpio_get_level(GPIO_KEY_SWITCH_0))
-                    {
-                        keycode = HID_KEY_C;
-                    }
-                    
-                    if(!gpio_get_level(GPIO_KEY_SWITCH_1))
-                    {
-                        keycode = HID_KEY_B;
-                    }
-
-                    if(!gpio_get_level(GPIO_KEY_SWITCH_2))
-                    {
-                        keycode = HID_KEY_A;
-                    }
-
-                    usb_hid_send_keyboard(keycode, 0);
+                    key_switch_read(&key_switches);
+                    key_switch_handle(&key_switches, KEY_SWITCH_DEBOUNCE_TIME_US);
                     break;
                 }
                 case 2: 
