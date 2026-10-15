@@ -5,6 +5,8 @@
 #include "tlv493d.h"
 #include "space_mouse.h"
 
+#include "space_mouse_input/rotary_encoder.h"
+
 #include "space_mouse_tinyusb/usb_descriptors.h"
 #include "space_mouse_tinyusb/usb_hid.h"
 
@@ -20,11 +22,14 @@
 #include "class/hid/hid.h"
 
 tlv493d_t tlv493d = {0};
+rotary_encoder_t rotary_encoder = {0};
 
 void app_main(void) 
 {
+    rotary_encoder_init_gpio(&rotary_encoder, GPIO_ROTARY_SWITCH, GPIO_ROTARY_ENCA, GPIO_ROTARY_ENCB);
+
     gpio_config_t gpio_configuration_switch = {
-        .pin_bit_mask = (1ULL << GPIO_MOUSE_SWITCH_LEFT) | (1ULL << GPIO_MOUSE_SWITCH_RIGHT) | (1ULL << GPIO_ROTARY_SWITCH),
+        .pin_bit_mask = (1ULL << GPIO_MOUSE_SWITCH_LEFT) | (1ULL << GPIO_MOUSE_SWITCH_RIGHT),
         .mode         = GPIO_MODE_INPUT,
         .pull_up_en   = GPIO_PULLUP_ENABLE,   
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
@@ -39,17 +44,8 @@ void app_main(void)
         .intr_type    = GPIO_INTR_DISABLE
     };
 
-    gpio_config_t gpio_configuration_rotary_encoder = {
-        .pin_bit_mask = (1ULL << GPIO_ROTARY_ENCA) | (1ULL << GPIO_ROTARY_ENCB),
-        .mode         = GPIO_MODE_INPUT,
-        .pull_up_en   = GPIO_PULLUP_ENABLE,   
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type    = GPIO_INTR_ANYEDGE
-    };
-
     gpio_config(&gpio_configuration_switch);
     gpio_config(&gpio_configuration_key);
-    gpio_config(&gpio_configuration_rotary_encoder);
     
     usb_hid_init();
     
@@ -71,7 +67,8 @@ void app_main(void)
                 case 0: 
                 {
                     uint8_t mb = (!gpio_get_level(GPIO_MOUSE_SWITCH_RIGHT) << 1) | !gpio_get_level(GPIO_MOUSE_SWITCH_LEFT);
-                    usb_hid_send_mouse(mb, 0, 0, 0);
+
+                    usb_hid_send_mouse(mb, 0, 0, rotary_encoder.rotary_encoder_layer);
                     break;
                 }
                 case 1: 
@@ -81,6 +78,16 @@ void app_main(void)
                     if(!gpio_get_level(GPIO_KEY_SWITCH_0))
                     {
                         keycode = HID_KEY_C;
+                    }
+                    
+                    if(!gpio_get_level(GPIO_KEY_SWITCH_1))
+                    {
+                        keycode = HID_KEY_B;
+                    }
+
+                    if(!gpio_get_level(GPIO_KEY_SWITCH_2))
+                    {
+                        keycode = HID_KEY_A;
                     }
 
                     usb_hid_send_keyboard(keycode, 0);
@@ -92,7 +99,7 @@ void app_main(void)
                     
                     space_mouse_data_t space_mouse_data = {0};
 
-                    if(!gpio_get_level(GPIO_KEY_SWITCH_1))
+                    if(!gpio_get_level(rotary_encoder.gpio_switch))
                     {
                         space_mouse_state = (space_mouse_state + 1) % SPACE_MOUSE_STATE_TOTAL;
                     }
