@@ -24,7 +24,8 @@ tlv493d_t tlv493d = {0};
 void app_main(void) 
 {
     gpio_config_t gpio_configuration = {
-        .pin_bit_mask = (1ULL << GPIO_MOUSE_SWITCH_LEFT) | (1ULL << GPIO_MOUSE_SWITCH_RIGHT) | (1ULL << GPIO_KEY_SWITCH_0),
+        .pin_bit_mask = (1ULL << GPIO_MOUSE_SWITCH_LEFT) | (1ULL << GPIO_MOUSE_SWITCH_RIGHT) | 
+                        (1ULL << GPIO_KEY_SWITCH_0) | (1ULL << GPIO_KEY_SWITCH_1) | (1ULL << GPIO_KEY_SWITCH_2),
         .mode         = GPIO_MODE_INPUT,
         .pull_up_en   = GPIO_PULLUP_ENABLE,   
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
@@ -72,7 +73,7 @@ void app_main(void)
             usb_hid_report_type = (usb_hid_report_type + 1) % 3;
 
         }
-        
+
         //space_mouse_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
         //space_mouse_print_direction(&tlv493d);
         //space_mouse_print_axis(&tlv493d);
