@@ -2,28 +2,26 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "tlv493d.h"
-#include "space_mouse.h"
-
-#include "space_mouse_input/rotary_encoder.h"
-#include "space_mouse_input/key_switch.h"
-#include "space_mouse_input/mouse_switch.h"
-
-#include "space_mouse_tinyusb/usb_descriptors.h"
-#include "space_mouse_tinyusb/usb_hid.h"
-
-#include "configuration.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #include "esp_log.h"
 #include "esp_task_wdt.h"
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
 #include "tinyusb.h"
 #include "class/hid/hid.h"
 
+#include "configuration.h"
+#include "tlv493d.h"
+#include "space_mouse.h"
+#include "space_mouse_input/rotary_encoder.h"
+#include "space_mouse_input/key_switch.h"
+#include "space_mouse_input/mouse_switch.h"
+#include "space_mouse_tinyusb/usb_descriptors.h"
+#include "space_mouse_tinyusb/usb_hid.h"
+
 tlv493d_t tlv493d = {0};
+
 rotary_encoder_t rotary_encoder = {0};
 key_switch_t key_switches = {0};
 mouse_switch_t mouse_switches = {0};
@@ -40,68 +38,8 @@ void app_main(void)
 
     while(true) 
     {
-        //space_mouse_print_direction(&tlv493d);
-        //space_mouse_print_axis(&tlv493d);
-        //space_mouse_print_deltas(&tlv493d);
-
-        if(tud_hid_ready())
-        {
-            static uint8_t usb_hid_report_type = 0;
-
-            switch(usb_hid_report_type)
-            {
-                case 0: 
-                {
-                    mouse_switch_read(&mouse_switches);
-                    mouse_switch_handle(&mouse_switches, rotary_encoder.rotary_encoder_layer, MOUSE_SWITCH_DEBOUNCE_TIME_US);
-                    break;
-                }
-                case 1: 
-                {
-                    key_switch_read(&key_switches);
-                    key_switch_handle(&key_switches, KEY_SWITCH_DEBOUNCE_TIME_US);
-                    break;
-                }
-                case 2: 
-                {
-                    space_mouse_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
-                    
-                    static space_mouse_state_t space_mouse_state = SPACE_MOUSE_STATE_TRANSLATION;
-                    
-                    space_mouse_data_t space_mouse_data = {0};
-
-                    if(!gpio_get_level(rotary_encoder.gpio_switch))
-                    {
-                        space_mouse_state = (space_mouse_state + 1) % SPACE_MOUSE_STATE_TOTAL;
-                    }
-
-                    switch(space_mouse_state)
-                    {
-                        case SPACE_MOUSE_STATE_TRANSLATION:
-                        {
-                            space_mouse_data.x = tlv493d.axis_x;
-                            space_mouse_data.y = tlv493d.axis_y;
-                            space_mouse_data.z = tlv493d.axis_z;
-                            break;
-                        }
-                        case SPACE_MOUSE_STATE_ROTATION:
-                        {
-                            space_mouse_data.rx = tlv493d.axis_x;
-                            space_mouse_data.ry = tlv493d.axis_y;
-                            space_mouse_data.rz = tlv493d.axis_z;
-                            break;
-                        }
-                        default: break;
-                    }
-
-                    usb_hid_send_spacemouse(&space_mouse_data);
-
-                    break;
-                }
-            }
-
-            usb_hid_report_type = (usb_hid_report_type + 1) % 3;
-        }
+        space_mouse_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);        
+        space_mouse_handle_usb_hid(&tlv493d, &mouse_switches, &key_switches, &rotary_encoder);
       
         vTaskDelay(pdMS_TO_TICKS(10)); 
     }   
