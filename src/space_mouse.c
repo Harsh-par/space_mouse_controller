@@ -34,34 +34,47 @@ void space_mouse_get_decoupled_movement(tlv493d_t *tlv493d, float deadzone)
 
 void space_mouse_handle_usb_hid(tlv493d_t *tlv493d, mouse_switch_t *mouse_switches, key_switch_t *key_switches, rotary_encoder_t *rotary_encoder)
 {
+    static space_mouse_state_t space_mouse_state = SPACE_MOUSE_STATE_TRANSLATION;
+
+    static uint8_t previous_switch_state = 0;
+    static uint32_t previous_time_us = 0;
+
+    uint8_t current_switch_state = !gpio_get_level(rotary_encoder->gpio_switch);
+    
+    uint32_t current_time_us = esp_timer_get_time();
+
+    if(current_switch_state && !previous_switch_state)
+    {
+        if(current_time_us - previous_time_us > ROTARY_ENCODER_SWITCH_DEBOUNCE_TIME_US)
+        {
+            space_mouse_state = (space_mouse_state + 1) % SPACE_MOUSE_STATE_TOTAL;
+            previous_time_us = current_time_us;
+        }
+    }
+
+    previous_switch_state = current_switch_state;
+
     if(tud_hid_ready())
     {
         static uint8_t usb_hid_report_type = 0;
 
         switch(usb_hid_report_type)
         {
-            case 0: 
+            case 0:
             {
                 mouse_switch_read(mouse_switches);
                 mouse_switch_handle(mouse_switches, rotary_encoder, MOUSE_SWITCH_DEBOUNCE_TIME_US);
                 break;
             }
-            case 1: 
+            case 1:
             {
                 key_switch_read(key_switches);
                 key_switch_handle(key_switches, KEY_SWITCH_DEBOUNCE_TIME_US);
                 break;
             }
-            case 2: 
+            case 2:
             {
-                static space_mouse_state_t space_mouse_state = SPACE_MOUSE_STATE_TRANSLATION;
-
                 space_mouse_data_t space_mouse_data = {0};
-
-                if(!gpio_get_level(rotary_encoder->gpio_switch))
-                {
-                    space_mouse_state = (space_mouse_state + 1) % SPACE_MOUSE_STATE_TOTAL;
-                }
 
                 float abs_x = fabsf(tlv493d->axis_x);
                 float abs_y = fabsf(tlv493d->axis_y);
@@ -102,10 +115,12 @@ void space_mouse_handle_usb_hid(tlv493d_t *tlv493d, mouse_switch_t *mouse_switch
                     }
                     default: break;
                 }
+
                 usb_hid_send_spacemouse(&space_mouse_data);
                 break;
             }
         }
+
         usb_hid_report_type = (usb_hid_report_type + 1) % 3;
     }
 }

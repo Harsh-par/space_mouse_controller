@@ -7,6 +7,8 @@
 
 #include "driver/gpio.h"
 
+#define ROTARY_ENCODER_SWITCH_DEBOUNCE_TIME_US 30000
+
 typedef struct rotary_encoder {
     uint8_t gpio_switch;
     uint8_t gpio_phase_a;
