@@ -26,12 +26,13 @@
 tlv493d_t tlv493d = {0};
 rotary_encoder_t rotary_encoder = {0};
 key_switch_t key_switches = {0};
+mouse_switch_t mouse_switches = {0};
 
 void app_main(void) 
 {
     rotary_encoder_init_gpio(&rotary_encoder, GPIO_ROTARY_SWITCH, GPIO_ROTARY_ENCA, GPIO_ROTARY_ENCB);
     key_switch_init_gpio(&key_switches, GPIO_KEY_SWITCH_0, GPIO_KEY_SWITCH_1, GPIO_KEY_SWITCH_2);
-    mouse_switch_init_gpio(GPIO_MOUSE_SWITCH_LEFT, GPIO_MOUSE_SWITCH_RIGHT);
+    mouse_switch_init_gpio(&mouse_switches, GPIO_MOUSE_SWITCH_LEFT, GPIO_MOUSE_SWITCH_RIGHT);
     
     usb_hid_init();
     
@@ -39,7 +40,6 @@ void app_main(void)
 
     while(true) 
     {
-        space_mouse_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
         //space_mouse_print_direction(&tlv493d);
         //space_mouse_print_axis(&tlv493d);
         //space_mouse_print_deltas(&tlv493d);
@@ -52,9 +52,8 @@ void app_main(void)
             {
                 case 0: 
                 {
-                    uint8_t mb = (!gpio_get_level(GPIO_MOUSE_SWITCH_RIGHT) << 1) | !gpio_get_level(GPIO_MOUSE_SWITCH_LEFT);
-
-                    usb_hid_send_mouse(mb, 0, 0, rotary_encoder.rotary_encoder_layer);
+                    mouse_switch_read(&mouse_switches);
+                    mouse_switch_handle(&mouse_switches, rotary_encoder.rotary_encoder_layer, MOUSE_SWITCH_DEBOUNCE_TIME_US);
                     break;
                 }
                 case 1: 
@@ -65,6 +64,8 @@ void app_main(void)
                 }
                 case 2: 
                 {
+                    space_mouse_get_decoupled_movement(&tlv493d, TLV493D_AXIS_DEADZONE);
+                    
                     static space_mouse_state_t space_mouse_state = SPACE_MOUSE_STATE_TRANSLATION;
                     
                     space_mouse_data_t space_mouse_data = {0};
