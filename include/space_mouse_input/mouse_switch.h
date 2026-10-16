@@ -1,6 +1,7 @@
 #ifndef MOUSE_SWITCH_H
 #define MOUSE_SWITCH_H
 
+#include "space_mouse_input/rotary_encoder.h"
 #include "space_mouse_tinyusb/usb_hid.h"
 
 #include "esp_timer.h"
@@ -23,6 +24,6 @@ typedef struct mouse_switch {
 
 void mouse_switch_init_gpio(mouse_switch_t *mouse_switch, uint8_t gpio_switch_left, uint8_t gpio_switch_right);
 void mouse_switch_read(mouse_switch_t *mouse_switch);
-void mouse_switch_handle(mouse_switch_t *mouse_switch, int16_t mouse_scroll, uint32_t debounce_time_us);
+void mouse_switch_handle(mouse_switch_t *mouse_switch, rotary_encoder_t *rotary_encoder, uint32_t debounce_time_us);
 
 #endif

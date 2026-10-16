@@ -59,13 +59,13 @@ static void rotary_encoder_callback(void *arg)
 
         previous_step_us = current_time_us;
         previous_step_direction = direction;
+        
+        int32_t scroll = rotary_encoder->rotary_encoder_layer + (direction * step_size);
 
-        int32_t layer = rotary_encoder->rotary_encoder_layer + (direction * step_size);
+        if(scroll > ROTARY_ENCODER_LAYER_COUNT) scroll = ROTARY_ENCODER_LAYER_COUNT;
+        if(scroll < -ROTARY_ENCODER_LAYER_COUNT) scroll = -ROTARY_ENCODER_LAYER_COUNT;
 
-        if(layer > ROTARY_ENCODER_LAYER_COUNT)  layer =  ROTARY_ENCODER_LAYER_COUNT;
-        if(layer < -ROTARY_ENCODER_LAYER_COUNT) layer = -ROTARY_ENCODER_LAYER_COUNT;
-
-        rotary_encoder->rotary_encoder_layer = (int16_t)layer;
+        rotary_encoder->rotary_encoder_layer = (int16_t)scroll;
     }
 }
 

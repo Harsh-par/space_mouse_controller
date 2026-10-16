@@ -43,7 +43,7 @@ void space_mouse_handle_usb_hid(tlv493d_t *tlv493d, mouse_switch_t *mouse_switch
             case 0: 
             {
                 mouse_switch_read(mouse_switches);
-                mouse_switch_handle(mouse_switches, rotary_encoder->rotary_encoder_layer, MOUSE_SWITCH_DEBOUNCE_TIME_US);
+                mouse_switch_handle(mouse_switches, rotary_encoder, MOUSE_SWITCH_DEBOUNCE_TIME_US);
                 break;
             }
             case 1: 
@@ -55,7 +55,7 @@ void space_mouse_handle_usb_hid(tlv493d_t *tlv493d, mouse_switch_t *mouse_switch
             case 2: 
             {
                 static space_mouse_state_t space_mouse_state = SPACE_MOUSE_STATE_TRANSLATION;
-                
+
                 space_mouse_data_t space_mouse_data = {0};
 
                 if(!gpio_get_level(rotary_encoder->gpio_switch))

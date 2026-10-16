@@ -32,7 +32,7 @@ void mouse_switch_read(mouse_switch_t *mouse_switch)
     }
 }
 
-void mouse_switch_handle(mouse_switch_t *mouse_switch, int16_t mouse_scroll, uint32_t debounce_time_us)
+void mouse_switch_handle(mouse_switch_t *mouse_switch, rotary_encoder_t *rotary_encoder, uint32_t debounce_time_us)
 {
     static uint32_t previous_time_us[MOUSE_SWITCH_AMOUNT] = {0};
 
@@ -56,5 +56,7 @@ void mouse_switch_handle(mouse_switch_t *mouse_switch, int16_t mouse_scroll, uin
         mouse_buttons |= mouse_state_debounced[current_switch] << current_switch;
     }
 
-    usb_hid_send_mouse(mouse_buttons, 0, 0, mouse_scroll);
+    usb_hid_send_mouse(mouse_buttons, 0, 0, rotary_encoder->rotary_encoder_layer);
+    
+    rotary_encoder->rotary_encoder_layer = 0;
 }
