@@ -63,20 +63,41 @@ void space_mouse_handle_usb_hid(tlv493d_t *tlv493d, mouse_switch_t *mouse_switch
                     space_mouse_state = (space_mouse_state + 1) % SPACE_MOUSE_STATE_TOTAL;
                 }
 
+                float abs_x = fabsf(tlv493d->axis_x);
+                float abs_y = fabsf(tlv493d->axis_y);
+                float abs_z = fabsf(tlv493d->axis_z);
+
+                float x = 0.0f;
+                float y = 0.0f;
+                float z = 0.0f;
+
+                if(abs_x >= abs_y && abs_x >= abs_z)
+                {
+                    x = tlv493d->axis_x;
+                }
+                else if(abs_y >= abs_x && abs_y >= abs_z)
+                {
+                    y = tlv493d->axis_y;
+                }
+                else
+                {
+                    z = tlv493d->axis_z;
+                }
+
                 switch(space_mouse_state)
                 {
                     case SPACE_MOUSE_STATE_TRANSLATION:
                     {
-                        space_mouse_data.x = tlv493d->axis_x;
-                        space_mouse_data.y = tlv493d->axis_y;
-                        space_mouse_data.z = tlv493d->axis_z;
+                        space_mouse_data.x = x;
+                        space_mouse_data.y = y;
+                        space_mouse_data.z = z;
                         break;
                     }
                     case SPACE_MOUSE_STATE_ROTATION:
                     {
-                        space_mouse_data.rx = tlv493d->axis_x;
-                        space_mouse_data.ry = tlv493d->axis_y;
-                        space_mouse_data.rz = tlv493d->axis_z;
+                        space_mouse_data.rx = x;
+                        space_mouse_data.ry = y;
+                        space_mouse_data.rz = z;
                         break;
                     }
                     default: break;
